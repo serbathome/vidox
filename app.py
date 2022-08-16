@@ -48,7 +48,6 @@ def upload_file():
             context = {}
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print("file saved")
 
             # We user moviepy to extract audio
             video = editor.VideoFileClip(filename=filename)
@@ -85,9 +84,11 @@ def upload_file():
                 if req['done']:
                     break
                 print("Not ready")
+            text = []
             for chunk in req['response']['chunks']:
                 if chunk['channelTag'] == '1':
-                    print(chunk['alternatives'][0]['text'])
-
-        return render_template('results.html', context=context)
-    return render_template("index.html")
+                    # print(chunk['alternatives'][0]['text'])
+                    text.append(chunk['alternatives'][0]['text'])
+        return render_template('results.html', text=text)
+    else:
+        return render_template("index.html")

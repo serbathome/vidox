@@ -15,19 +15,13 @@
     <div class="container">
         <section>
             <h1 class="display-3">Vidox project: extract text from video</h1>
-            
+            <h2>Results</h2>
         </section>
-        <div class="row">
-            <div class="col">
-                <form action="/upload">
-                    <div class="input-group mb-3">
-                        
-                        <input class="form-control" type="file" id="formFile">
-                        <button class="btn btn-outline-secondary" type="button" id="button">Upload</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <section>
+            {% for line in text %}
+            <p>{{line}}</p>
+            {% endfor %}
+        </section>
     </div>
 </body>
 </html>
