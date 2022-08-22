@@ -68,7 +68,7 @@ var app = new Vue({
             var imagefile = document.querySelector('#file');
             fileSize = imagefile.files[0].size;
             formData.append("file", imagefile.files[0]);
-            axios.post('/upload2', formData, {
+            axios.post('/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 },
