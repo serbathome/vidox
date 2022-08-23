@@ -129,37 +129,40 @@ def download(job_id):
 @app.route('/transcribe/<int:job_id>')
 def transcribe(job_id):
     j = Job.query.filter_by(id=job_id).first()
-    filename = j.filename
-    print(f"processing filename {filename}")
-    video = editor.VideoFileClip(filename=filename)
-    audio = video.audio
-    audio.write_audiofile(filename=filename + ".mp3",
-                          verbose=False, logger=None)
-    print("audio track extracted")
-    print("uploading to yandex s3")
-    uploadFile(filename + ".mp3")
-    print("upload completed")
-    print("requesting voice recognition")
-    key = os.getenv('s3key')
-    filelink = 'https://storage.yandexcloud.net/vidox/' + filename + '.mp3'
-    POST = "https://transcribe.api.cloud.yandex.net/speech/stt/v2/longRunningRecognize"
-    body = {
-        "config": {
-            "specification": {
-                "languageCode": "ru-RU",
-                "audioEncoding": "MP3"
+    if j.status == 'uploaded':
+        filename = j.filename
+        print(f"processing filename {filename}")
+        video = editor.VideoFileClip(filename=filename)
+        audio = video.audio
+        audio.write_audiofile(filename=filename + ".mp3",
+                              verbose=False, logger=None)
+        print("audio track extracted")
+        print("uploading to yandex s3")
+        uploadFile(filename + ".mp3")
+        print("upload completed")
+        print("requesting voice recognition")
+        key = os.getenv('s3key')
+        filelink = 'https://storage.yandexcloud.net/vidox/' + filename + '.mp3'
+        POST = "https://transcribe.api.cloud.yandex.net/speech/stt/v2/longRunningRecognize"
+        body = {
+            "config": {
+                "specification": {
+                    "languageCode": "ru-RU",
+                    "audioEncoding": "MP3"
+                }
+            },
+            "audio": {
+                "uri": filelink
             }
-        },
-        "audio": {
-            "uri": filelink
         }
-    }
-    header = {'Authorization': 'Api-Key {}'.format(key)}
-    req = requests.post(POST, headers=header, json=body)
-    data = req.json()
-    id = data['id']
-    print(f"job posted with id {id}")
-    j.yandex_id = id
-    j.status = "scheduled"
-    db.session.commit()
-    return jsonify({'status': 'ok'})
+        header = {'Authorization': 'Api-Key {}'.format(key)}
+        req = requests.post(POST, headers=header, json=body)
+        data = req.json()
+        id = data['id']
+        print(f"job posted with id {id}")
+        j.yandex_id = id
+        j.status = "scheduled"
+        db.session.commit()
+        return jsonify({'status': 'ok'})
+    else:
+        return jsonify({'status': 'error'})
