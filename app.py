@@ -13,7 +13,7 @@ ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mkv', 'mov'}
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'thisismysecretcode'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/serb/sources/vidox/test.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
 db = SQLAlchemy(app)
 
 
@@ -22,6 +22,7 @@ class Job(db.Model):
     filename = db.Column(db.String(80), unique=False, nullable=False)
     yandex_id = db.Column(db.String(64), unique=True, nullable=True)
     status = db.Column(db.String(10), unique=False, nullable=False)
+    language = db.Column(db.String(10), unique=False, nullable=False)
     text = db.Column(db.String(4294000000), unique=False, nullable=True)
 
     def __str__(self):
@@ -56,13 +57,13 @@ def upload():
         if file.filename == '':
             return jsonify({'status': 'No selected file'})
         if file and allowed_file(file.filename):
-            print("saving file")
+            language = request.form.get('language', 'ru-RU')
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print("file saved")
             job = Job()
             job.filename = filename
             job.status = 'uploaded'
+            job.language = language
             db.session.add(job)
             db.session.commit()
             return jsonify({"status": "ok"})
@@ -95,7 +96,8 @@ def refresh():
             {
                 'id': j.id,
                 'filename': j.filename,
-                'status': j.status
+                'status': j.status,
+                'language': j.language
             }
         )
     return jsonify({'jobs': jobs})
@@ -130,24 +132,20 @@ def transcribe(job_id):
     j = Job.query.filter_by(id=job_id).first()
     if j.status == 'uploaded':
         filename = j.filename
-        print(f"processing filename {filename}")
         video = editor.VideoFileClip(filename=filename)
         audio = video.audio
         audio.write_audiofile(filename=filename + ".mp3",
                               verbose=False, logger=None)
-        print("audio track extracted")
-        print("uploading to yandex s3")
         uploadFile(filename + ".mp3")
-        print("upload completed")
-        print("requesting voice recognition")
         key = os.getenv('s3key')
         filelink = 'https://storage.yandexcloud.net/vidox/' + filename + '.mp3'
         POST = "https://transcribe.api.cloud.yandex.net/speech/stt/v2/longRunningRecognize"
         body = {
             "config": {
                 "specification": {
-                    "languageCode": "ru-RU",
-                    "audioEncoding": "MP3"
+                    "languageCode": j.language,
+                    "audioEncoding": "MP3",
+                    "literature_text": "true"
                 }
             },
             "audio": {
@@ -158,7 +156,6 @@ def transcribe(job_id):
         req = requests.post(POST, headers=header, json=body)
         data = req.json()
         id = data['id']
-        print(f"job posted with id {id}")
         j.yandex_id = id
         j.status = "scheduled"
         db.session.commit()

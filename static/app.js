@@ -24,11 +24,11 @@ var app = new Vue({
             axios.get(/transcribe/ + id)
                 .then((response) => {
                     if (response.data.status == "ok") {
-                        this.pushNotification('Transcription started', 'Wait for completion', 'success');
+                        this.pushNotification('Success', 'Transcription started', 'success');
                         console.log("scheduled successfully");
                     }
                     else {
-                        this.pushNotification('Transcription failed', 'Wait for completion', 'error');
+                        this.pushNotification('Error', 'Transcription failed', 'error');
                         console.log("error happened");
                     }
                     this.get();
@@ -49,7 +49,7 @@ var app = new Vue({
                                 'id': element.id,
                                 'filename': element.filename,
                                 'status': element.status,
-                                'transcript': transcript,
+                                'language': element.language
                             }
                         );
                     });
@@ -66,11 +66,13 @@ var app = new Vue({
             }
         },
         uploadFile: function () {
+            lang = document.getElementById("language").value;
             document.getElementById("progress").style["width"] = "0%";
             var formData = new FormData();
             var imagefile = document.querySelector('#file');
             fileSize = imagefile.files[0].size;
             formData.append("file", imagefile.files[0]);
+            formData.append("language", lang)
             axios.post('/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
