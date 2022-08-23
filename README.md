@@ -1,1 +1,1 @@
-# vidox
+# video transcription project
