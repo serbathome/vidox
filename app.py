@@ -44,8 +44,7 @@ def uploadFile(filename):
 
 @app.route('/')
 def index():
-    records = Job.query.all()
-    return render_template('index.html', records=records)
+    return render_template('index.html')
 
 
 @app.route('/upload', methods=['GET', 'POST'])
@@ -166,8 +165,3 @@ def transcribe(job_id):
         return jsonify({'status': 'ok'})
     else:
         return jsonify({'status': 'error'})
-
-
-@app.route('/sample')
-def sample():
-    return render_template('sample.html')
