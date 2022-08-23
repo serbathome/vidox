@@ -14,9 +14,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" 
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
         crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.css" />
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/simple-notify@0.5.5/dist/simple-notify.min.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>    
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+
     <script>
 
         var fileSize = 0;
@@ -39,7 +44,7 @@
                 <form>
                     <div class="input-group mb-3">
                         <input class="form-control" name="file" type="file" id="file">
-                        <input class="btn btn-primary" type="submit" value="Upload" id="upload" v-on:click.prevent="uploadFile"></input>
+                        <input class="btn btn-outline-success" type="submit" value="Upload" id="upload" v-on:click.prevent="uploadFile"></input>
                     </div>
                 </form>
             </div>
@@ -47,14 +52,14 @@
         <div class="row">
             <div class="col">
                 <div class="progress">
-                    <div id="progress" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+                    <div id="progress" class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" 
                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
                 </div>
             </div>
         </div>
 
         <div class="mt-3 mb-3">
-            <button id="refresh" class="btn btn-primary" v-on:click="get">Refresh</button>
+            <button id="refresh" class="btn btn-outline-success" v-on:click="get">Refresh</button>
         </div>
         <table class="table">
             <thead>
@@ -69,9 +74,9 @@
                     <td>${job.filename}</td>
                     <td>${job.status}</td>
                     <td>
-                        <a class="btn btn-primary" v-on:click.prevent="run(job.id)"><i class="fas fa-play"></i></a>
-                        <a class="btn btn-primary" v-on:click.prevent="drop(job.id)"><i class="fas fa-trash"></i></a>
-                        <a v-if="job.status=='ready'" :href="'/download/' + job.id" class="btn btn-primary"><i class="fas fa-closed-captioning"></i></a>
+                        <a class="btn btn-outline-success" v-on:click.prevent="run(job.id)"><i class="fas fa-play"></i></a>
+                        <a class="btn btn-outline-success" v-on:click.prevent="drop(job.id)"><i class="fas fa-trash"></i></a>
+                        <a v-if="job.status=='ready'" :href="'/download/' + job.id" class="btn btn-outline-success"><i class="fas fa-closed-captioning"></i></a>
                     </td>
                 </tr>
             </tbody>

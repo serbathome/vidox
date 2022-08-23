@@ -166,3 +166,8 @@ def transcribe(job_id):
         return jsonify({'status': 'ok'})
     else:
         return jsonify({'status': 'error'})
+
+
+@app.route('/sample')
+def sample():
+    return render_template('sample.html')
